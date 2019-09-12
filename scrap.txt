@@ -17,6 +17,16 @@ https://xstate.js.org/docs/
 https://app.slack.com/client/T41ECBKQ8/C41ECC0V6/thread/C41ECC0V6-1563274057.215400
 
 
+// import {context} from "./xelement";
+// import {obi} from "@iosio/obi";
+// import {isFunc, isObj} from "./utils";
+//
+// export const provide = (namespace, attach) => {
+//     let obj = isFunc(attach) ? obi(attach(context)) : (isObj(attach) ? obi(attach) : attach);
+//     return (context[namespace] = obj, obj);
+// };
+//
+
 
 https://github.com/UpperCod/preact-tag/tree/master/src
 

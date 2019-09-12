@@ -11,7 +11,7 @@ npm install @iosio/pwc --save
 
 **@iosio/create-pwc-lib** - to scaffold a ui-library
 
-#### Quick example for now
+### Quick example for now
 
 ```js
 import {h, Fragment, Component} from 'preact';
@@ -70,7 +70,7 @@ export const CountComponent = pwc('count-component', class extends Component{
                 <ColorComponent foo={123}/>
                 
                 
-                <color-component foo={123}>
+                <color-component foo={456}>
                     heyoo
                 </color-component>
           
