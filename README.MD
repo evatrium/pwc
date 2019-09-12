@@ -7,9 +7,11 @@
 npm install @iosio/pwc --save
 ```
 ### Coming soon*
-**@iosio/create-pwc-app** - to scaffold an app
+**@iosio/pwc-boilerplate** - starter that will include all build tools and dependencies for creating apps and libs with pwc
 
-**@iosio/create-pwc-lib** - to scaffold a ui-library
+then eventually
+
+**@iosio/create-pwc** - to scaffold apps and libraries
 
 ### Quick example for now
 
@@ -18,7 +20,7 @@ import {h, Fragment, Component} from 'preact';
 import {useState} from 'preact/hooks'
 import {pwc} from '@iosio/pwc';
 
-
+//use functional components
 export const ColorComponent = pwc('color-component', ({foo, host}) => {
 
   const [color, setColor] = useState('red')
@@ -42,6 +44,8 @@ export const ColorComponent = pwc('color-component', ({foo, host}) => {
 }, {foo: Number});
 
 
+
+//or use class components
 export const CountComponent = pwc('count-component', class extends Component{
     
     static propTypes = {name: String};
@@ -79,6 +83,11 @@ export const CountComponent = pwc('count-component', class extends Component{
     }
 });
 
+
+/*
+    Build using the boilerplate and consume components in other apps
+    or create a standalone app
+ */
 
 ```
 ### License
