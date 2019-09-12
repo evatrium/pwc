@@ -11,7 +11,7 @@ npm install @iosio/pwc --save
 
 then eventually
 
-**@iosio/create-pwc** - to scaffold apps and libraries
+**@iosio/create-pwc** - a CLI to scaffold UI libraries and apps
 
 ### Quick example for now
 
