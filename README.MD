@@ -6,12 +6,6 @@
 ```sh
 npm install @iosio/pwc --save
 ```
-### Coming soon*
-**@iosio/pwc-boilerplate** - starter that will include modern build tools and dependencies for creating apps and libs with pwc
-
-then eventually
-
-**@iosio/create-pwc** - a CLI to scaffold UI libraries and apps
 
 ### Quick example for now
 
@@ -90,6 +84,15 @@ export const CountComponent = pwc('count-component', class extends Component{
  */
 
 ```
+
+### Coming soon*
+**@iosio/pwc-boilerplate** - starter that will include modern build tools and dependencies for creating apps and libs with pwc
+
+then eventually
+
+**@iosio/create-pwc** - a CLI to scaffold UI libraries and apps
+
+
 ### License
 
 [MIT]
