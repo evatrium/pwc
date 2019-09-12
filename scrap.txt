@@ -66,3 +66,46 @@ https://github.com/UpperCod/preact-tag/tree/master/src
         }
         return this._process;
     };
+
+
+
+
+
+
+/*
+    ------------- save
+
+
+let postInitial = (next) => {
+    this._unsubs.push(this.lifeCycle(...next));
+    !TEST_ENV && this.classList.add('___');
+};
+
+//minifier moves this to the constructor anyways
+this.update = () => {
+    if (!this._process) {
+
+        this._process = this._mounted.then((next, initial, shouldRerender) => {
+            next = [extend({host: this}, this[PROPS]), this.state, this.context];
+            initial = !this._hasMounted;
+            // returning a falsy value (other than undefined) will prevent a re*-render
+            shouldRerender = this.willRender(...next, initial);
+            if (shouldRerender === undefined || shouldRerender || initial) {
+                render(this.render(...next), this._root);
+                this._hasMounted = true;
+                if (initial) !TEST_ENV
+                    ? requestAnimationFrame(() => postInitial(next))
+                    : postInitial(next);
+            }
+            this._process = false;
+        });
+    }
+    return this._process;
+};
+
+this.update();
+let {_initAttrs} = this.constructor;
+let length = _initAttrs.length;
+while (length--) _initAttrs[length](this);
+
+*/

@@ -1,16 +1,15 @@
-import {Xelement, element, x, h, Fragment} from "../src";
+import {PWC, pwc, x, h, Fragment} from "../src";
 import {randomName, mount} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
 
+describe('PWC', () => {
 
-describe('Xelement', () => {
-
-    it('creates a custom element that extends Xelement', async (done) => {
+    it('creates a custom pwc that extends PWC', async (done) => {
 
         let tag = randomName();
 
-        element(tag, class extends Xelement {
+        pwc(tag, class extends PWC {
             render() {
                 return (<div>hello</div>)
             }
@@ -28,11 +27,11 @@ describe('Xelement', () => {
 
     });
 
-    it('creates a custom element using a functional component', async (done) => {
+    it('creates a custom pwc using a functional component', async (done) => {
 
         let tag = randomName();
 
-        element(tag, () => (<div>hello</div>));
+        pwc(tag, () => (<div>hello</div>));
 
         let results = await mount({tag});
 
@@ -46,11 +45,11 @@ describe('Xelement', () => {
 
     });
 
-    it('creates a custom element using a functional component and with propTypes passed as a third parameter', async (done) => {
+    it('creates a custom pwc using a functional component and with propTypes passed as a third parameter', async (done) => {
 
         let tag = randomName();
 
-        element(tag, ({myProp}) => (<div>hello {myProp}</div>), {myProp: String});
+        pwc(tag, ({myProp}) => (<div>hello {myProp}</div>), {myProp: String});
 
         let results = await mount({tag, attributes: {['my-prop']: 'hola'}});
 
@@ -63,11 +62,11 @@ describe('Xelement', () => {
         done();
     });
 
-    it('Xelement re-renders correct content when state is updated', async (done) => {
+    it('PWC re-renders correct content when state is updated', async (done) => {
 
         let tag = randomName();
 
-        element(tag, class extends Xelement {
+        pwc(tag, class extends PWC {
 
             state = {count: 0};
 
@@ -111,7 +110,7 @@ describe('Xelement', () => {
     });
 
 
-    it('Host element behaves as expected, and does not interfere with user assigned classNames and style properties', async (done) => {
+    it('Host pwc behaves as expected, and does not interfere with user assigned classNames and style properties', async (done) => {
 
         let tag = randomName();
 
@@ -119,7 +118,7 @@ describe('Xelement', () => {
         let USER_ASSIGNED_STYLE = 'border: 1px solid red;';
 
 
-        element(tag, class extends Xelement {
+        pwc(tag, class extends PWC {
 
             state = {applyClass: true, applyStyles: true, count: 0};
 

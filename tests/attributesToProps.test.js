@@ -1,4 +1,4 @@
-import {Xelement, element, x, h, Fragment} from "../src";
+import {PWC, pwc, x, h, Fragment} from "../src";
 import {randomName, mount, till} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
@@ -10,7 +10,7 @@ const createXelement = ({propTypes = {}, renderFunc}) => {
 
     let tag = randomName();
 
-    element(tag, class extends Xelement {
+    pwc(tag, class extends PWC {
 
         static propTypes = propTypes;
 
@@ -43,7 +43,7 @@ const createXelement = ({propTypes = {}, renderFunc}) => {
 
 
 
-describe('Xelement props', () => {
+describe('PWC props', () => {
 
 
     beforeEach(function () {
@@ -55,7 +55,6 @@ describe('Xelement props', () => {
 
             ['renderedAttributesToProps','willRender', 'render', 'didRender', 'lifeCycle', 'willUnmount', 'unsubscribe']
         );
-
 
         tests = ({willRender, render, didRender, lifeCycle, willUnmount, unsubscribe}) => {
             (willRender || willRender === 0) && expect(expectedCalls.willRender.calls.count()).toEqual(willRender);

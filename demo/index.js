@@ -1,92 +1,77 @@
-import {x, Xelement, globalStyles} from "../src";
-import {h, Fragment} from "../src";
+import {x, globalStyles} from "../src";
 
-// import {h, render, Fragment, Component} from "preact";
+import {h, render, Fragment, Component} from "preact";
 
 
-import {todos} from "../demo/todos";
+import {todos as to} from "../demo/todos";
 import {extend} from "@iosio/util";
 
-import {obi} from "@iosio/obi";
+import {obi, connectObi} from "../src/obi";
+
+// import {obi} from "@iosio/obi/preact/index.esm";
+
+let todos = obi(to);
 
 
 globalStyles(// language=CSS
-        `    html {
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
-        }
+    jcss`    html {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+    }
 
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            flex: 1 0 auto;
-        }
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+    }
 
-        .asdf {
-            color: pink;
-        }
+    .asdf {
+        color: pink;
+    }
 
-        .derp {
-            background: purple;
-        }
+    .derp {
+        background: purple;
+    }
 
-        *, *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-    `
+    *, *::before,
+    *::after {
+        box-sizing: border-box;
+    }`
 );
 
 
-const Test = x('test', class extends Xelement {
-
-    static propTypes = {name: String};
-
-    // constructor(){
-    //     super();
-    //     console.log('test constructed')
-    // }
-    //
-    // lifeCycle() {
-    //     // let interval = setInterval(() => {
-    //     //
-    //     // })
-    //     console.log('test mounted');
-    //     return () =>{
-    //         console.log('test unmounted')
-    //     }
-    // }
-
-    render({Host, name}) {
-        return (
-            <div>
-                <h1>name: {name}</h1>
-                <slot/>
-            </div>
-        )
-    }
-});
+const Test = x('test', ({name}) => (
+    <div>
+        <h1>name: {name}</h1>
+        <slot/>
+    </div>
+), {name: String});
 
 
-const TestListItem = x('list-item', class extends Xelement {
-    static propTypes = {text: String};
+const TestListItem = x('list-item', ({text}) => {
+    return (
+        <Fragment>
+            <b>heyoo: {text}</b>
+        </Fragment>
+    );
+}, {text: String});
 
-    render() {
-        return (
-            <div>
-                <b>{text}</b>
-                <slot/>
-            </div>
-        )
-    }
-})
+// const TestListItem = x('list-item', (props)=>{
+//     return <ListItemComponent {...props}/>
+// }, {text: String});
+
+// const TestListItem = x('list-item', ({text})=>(
+//     <Fragment>
+//         <b>heyoo: {text}</b>
+//     </Fragment>
+// ), {text: String});
 
 const test = obi({
     count: 0,
@@ -109,29 +94,25 @@ const counter = {
 
 const $counter = obi(counter);
 
-const Counter = x('counter', class extends Xelement {
+const Counter = x('counter', class extends Component {
     static propTypes = {color: String};
+
+    constructor() {
+        super();
+        // console.log('counter constructed')
+    }
 
     observe = test;
 
     state = {mounted: false};
-    //
-    lifeCycle() {
-        // let interval = setInterval(() => {
-        //
-        // })
-        // console.log('mounted');
-        this.setState({mounted: true});
-        return () =>{
-            // console.log('i unmounted', this.color)
-            this.setState({mounted: false})
-        }
+
+    componentDidMount() {
+        this.setState({mounted: true})
     }
 
-
-    render({Host, color}, {mounted}) {
+    render({color}, {mounted}) {
         return (
-            <Host style={{border: '2px solid purple', width: '100%'}}>
+            <div style={{border: '2px solid purple', width: '100%'}}>
                 <style>{`
                      *, *::before,
                         *::after {
@@ -139,121 +120,46 @@ const Counter = x('counter', class extends Xelement {
                         }
                 `}</style>
                 <span style={{color: 'blue', background: mounted ? 'white' : 'red'}}>{test.count}</span>
-                {/*<div style={{height: 20, width: 20, background: color || 'blue'}}>*/}
-
-                {/*</div>*/}
-            </Host>
+                <div style={{height: 20, width: 20, background: color || 'blue'}}>
+                    <slot/>
+                </div>
+            </div>
         )
     }
 });
 
 
-const Lister = x('lister', class extends Xelement {
+const Lister = x('lister', todos.$connect()(() => (
+    <ul>
+        {todos.displayList.map((t) => (
+            <li key={t.id}>
+                <b>{t.name}</b>
+                <button onClick={() => todos.removeTodo(t)}>X</button>
+                <Counter>
+                </Counter>
+            </li>
+        ))}
 
-    constructor() {
-        super();
-        console.log('lister constructed')
-    }
-
-    observe = obi(todos);
-
-    lifeCycle() {
-        // let interval = setInterval(() => {
-        //
-        // })
-        console.log('lister mounted');
-        return () => {
-            console.log('lister unmounted')
-        }
-    }
-
-    /*
-        <TestListItem text={t.name} key={t.id}>
-                        <button onClick={() => todos.removeTodo(t)}>X</button>
-        </TestListItem>
-    */
-
-    render({Host}) {
-        return (
-            <ul>
-                {todos.displayList.map((t) => (
-                    <li key={t.id}>
-                        <b>{t.name}</b>
-                        <button onClick={() => todos.removeTodo(t)}>X</button>
-                        <Counter/>
-                    </li>
-                ))}
-
-            </ul>
-        )
-    }
-});
+    </ul>
+)));
 
 
-const MoveElementTest = x('move', class extends Xelement {
-
-
-    move = () => {
-
-
-        this.ul.insertBefore(this.redRef, this.blueRef);
-    };
-
-    render({Host}) {
-        return (
-            <Host style={{width: '100%', border: '2px solid purple', }}>
-                <style>{`
-                     *, *::before,
-                        *::after {
-                            box-sizing: border-box;
-                        }
-                `}</style>
-                <button onClick={this.move}>toggle move</button>
-
-                <ul ref={r => this.ul = r} style={{width: '100%'}}>
-
-                    <li ref={r => this.greenRef = r} style={{width: '100%'}}>
-                        <Counter color={'green'}/>
-                    </li>
-
-                    <li ref={r => this.blueRef = r} style={{width: '100%'}}>
-                        <Counter color={'blue'}/>
-                    </li>
-
-                    <li ref={r => this.redRef = r} style={{width: '100%'}}>
-                        <Counter color={'red'}/>
-                    </li>
-                </ul>
-            </Host>
-        )
-    }
-});
-
-
-export const App = x('app', class extends Xelement {
+const AppComponent = class extends Component {
 
     static propTypes = {some: String, cool: Boolean, prop: Number, types: Object, yo: Array};
 
-    state = {bool: true};
-    // obi(extend(todos, {bool: true}));
-
-    observe = obi(todos); // detects mutations on object values and triggers an update
+    state = {bool: true, text: '', asdf: 0};
 
 
-    render({Host, ...props}, state) {
+    toggle = () => {
+        this.setState(state => ({bool: !state.bool}))
+    }
 
-        const TextList = ({derp}) => (
-            <Fragment>
-
-                {todos.displayList.map(t => (<div onClick={derp} key={t.id}>{t.name}</div>))}
-
-            </Fragment>
-
-        );
+    render(props, state) {
 
 
         return (
-            <Host style={{width: '100%'}}>
+            <Fragment>
 
                 <style>
                     {// language=CSS
@@ -286,14 +192,15 @@ export const App = x('app', class extends Xelement {
                 */}
 
 
-                <MoveElementTest/>
-
-
                 <h1 className={todos.todoName === '' ? 'derp' : null}>
                     TODOS!!!!
                 </h1>
 
 
+                <button onClick={this.toggle}>toggle</button>
+
+
+                {/*<input onInput={}*/}
                 <h1 style={state.bool ? {color: todos.todoName === '' ? 'blue' : 'red'} : 'color:green'}
                 >
                     style object!!!!</h1>
@@ -314,7 +221,9 @@ export const App = x('app', class extends Xelement {
                 <button onClick={$counter.stop}> stop counter</button>
 
 
-                {state.bool && <Test name={todos.todoName} onClick={() => console.log('shit balls')}/>}
+                {state.bool && <Test name={todos.todoName} onClick={() => 'asdf'
+                    // console.log('shit balls')
+                }/>}
 
 
                 <button onClick={todos.makeABunch}>
@@ -326,7 +235,10 @@ export const App = x('app', class extends Xelement {
                 <br/>
                 <br/>
 
-                <input ref={this.input} placeholder="add todo" value={todos.todoName}
+                <input placeholder="add todo" value={(function () {
+                    console.log(todos.todoName)
+                    return todos.todoName
+                })()}
                        onInput={(e) => todos.todoName = e.target.value}/>
 
                 <button onClick={todos.addTodo} style="color:blue">
@@ -342,7 +254,7 @@ export const App = x('app', class extends Xelement {
 
                     <div style="width:50%">
 
-                        <x-lister></x-lister>
+                        <Lister></Lister>
 
                     </div>
 
@@ -354,14 +266,18 @@ export const App = x('app', class extends Xelement {
 
                 </div>
 
+                <TestListItem text={'derp'}/>
 
-            </Host>
+
+            </Fragment>
         )
     }
 
-});
+};
+
+export const App = x('app', todos.$connect()(AppComponent));
 //
-// export const App = x('app', class extends Xelement {
+// export const App = x('app', class extends PWC {
 //
 //     state = {bool: false};
 //

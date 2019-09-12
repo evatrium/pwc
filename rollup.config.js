@@ -45,6 +45,7 @@ function outputLib({file, format, min}) {
         output: {
             file,
             format,
+            sourcemap: true,
             // dynamicImportFunction: !oldSchoolShit && 'importShim', //--- i think this is for bundling apps not so much for libs
             ...umdName,
         },
@@ -93,8 +94,8 @@ function outputLib({file, format, min}) {
 
 export default [
     outputLib({file: pkg.main, format: 'cjs'}),
-    outputLib({file: pkg.module, format: 'esm'}),
-    outputLib({file: pkg['module.min'], format: 'esm', min:true}),
+    outputLib({file: pkg.module, format: 'esm', min:true}),
+    // outputLib({file: pkg['module.min'], format: 'esm', min:true}),
     outputLib({file: pkg.browser, format: 'umd', min: true}),
     // outputLib({ file: 'lib/index.system.js', format: 'system'}), // --- i think this is for bundling apps not so much for libs
 ];

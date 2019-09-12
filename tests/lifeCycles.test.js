@@ -1,4 +1,4 @@
-import {Xelement, element, x, h, Fragment, Host} from "../src";
+import {PWC, pwc, x, h, Fragment, Host} from "../src";
 import {randomName, mount, till} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
@@ -12,7 +12,7 @@ const createXelement = () => {
 
     observable = obi({observableValue: 'hello'});
 
-    element(tag, class extends Xelement {
+    pwc(tag, class extends PWC {
 
         static propTypes = {
             testText: {type: String, reflect: true, value: ''}
@@ -56,7 +56,7 @@ const createXelement = () => {
 };
 
 
-describe('Xelement lifeCycles', () => {
+describe('PWC lifeCycles', () => {
 
 
     beforeEach(function () {
@@ -302,7 +302,7 @@ describe('Xelement lifeCycles', () => {
 
 
 
-    it('removing the element should call willUnmount and unsubscribe the subscriptions ', async (done) => {
+    it('removing the pwc should call willUnmount and unsubscribe the subscriptions ', async (done) => {
 
         let {node} = await mount({tag});
 

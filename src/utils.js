@@ -1,23 +1,19 @@
+import {isArray, isObj} from "@iosio/util";
+
 let d = document,
-    createElement = (elem) => d.createElement(elem),
-    appendChild = (node, child) => node.appendChild(child),
-    createTextNode = (text) => d.createTextNode(text),
+    TEST_ENV = process.env.NODE_ENV === 'test',
     /**
-     * creates a single style sheet. returns a function to update the same sheet
-     * @param {node|| null} mount - pass the node to mount the style element to defaults to document head
+     * creates a single style sheet. returns a function to add to the same sheet
      * @returns {function} for adding styles to the same stylesheet
      */
-    styleSheet = (mount) => {
-        let style = createElement('style');
-        appendChild(style, createTextNode(""));
-        appendChild(mount || d.head, style);
-        return (css) => (appendChild(style, createTextNode(css)), style);
+    styleSheet = (style) => {
+         style = d.createElement('style');
+         d.head.appendChild(style);
+        return (css) => (style.appendChild(d.createTextNode(css)), style);
     },
     globalStyles = styleSheet(),
-    webComponentVisibilityStyleSheet = styleSheet(),
-    webComponentVisibility = (tag) => webComponentVisibilityStyleSheet(`${tag} {visibility:hidden}`),
-
-
+    visibilityStyleSheet = styleSheet(),
+    webComponentVisibility = (tag) => visibilityStyleSheet(`${tag} {visibility:hidden}`),
     /**
      * for parsing the incoming attributes into consumable props
      * @param value
@@ -39,14 +35,9 @@ let d = document,
         return {value, error: true};
     },
 
-    isCustomElement = (el, isAttr) => {
-        if (!el.getAttribute || !el.localName) return false;
-        isAttr = el.getAttribute('is');
-        return el.localName.includes('-') || isAttr && isAttr.includes('-');
-    },
     /**
      * will set or remove the attribute based on the truthyness of the value.
-     * if the type of value === object (accounts for array) and the node is a custom element, it will json stringify the value
+     * if the type of value === object (accounts for array) and the node is a custom pwc, it will json stringify the value
      * @param node
      * @param attr
      * @param value
@@ -54,38 +45,16 @@ let d = document,
     updateAttribute = (node, attr, value) => {
         (value === null || value === false)
             ? node.removeAttribute(attr)
-            : node.setAttribute(attr, isCustomElement(node) && (isObj(value) || isArray(value)) ? JSON.stringify(value) : value);
+            : node.setAttribute(attr, (isObj(value) || isArray(value)) ? JSON.stringify(value) : value);
     },
-
-
     propToAttr = (prop) => prop.replace(/([A-Z])/g, "-$1").toLowerCase(),
-    attrToProp = (attr) => attr.replace(/-(\w)/g, (all, letter) => letter.toUpperCase()),
-
-    TEST_ENV = process.env.NODE_ENV === 'test',
+    attrToProp = (attr) => attr.replace(/-(\w)/g, (all, letter) => letter.toUpperCase());
 
 
-    isArray = Array.isArray,
-    isObj = (thing) => Object.prototype.toString.call(thing) === '[object Object]',
-    isFunc = (thing) => typeof thing === 'function',
-    isString = (thing) => typeof thing === 'string',
-    addListener = (to, ev, cb) => to.addEventListener(ev, cb),
-    removeListener = (from, ev, cb) => from.removeEventListener(ev, cb),
-    def = (obj, prop, handlers) => Object.defineProperty(obj, prop, handlers),
-    extend = (obj, props) => {
-        for (let i in props) obj[i] = props[i];
-        return obj
-    },
-    asdf = '!@#$!@#$!@#$!@#$!@#$',
-    test = (derp) => derp[asdf];
-
-    console.log(asdf);
-
-webComponentVisibilityStyleSheet(` .___ {visibility: inherit;}`, true);
+    visibilityStyleSheet(` .___ {visibility: inherit;}`, true);
 
 export {
-    createElement,
-    createTextNode,
-    appendChild,
+    TEST_ENV,
     styleSheet,
     globalStyles,
     webComponentVisibility,
@@ -93,15 +62,4 @@ export {
     updateAttribute,
     propToAttr,
     attrToProp,
-    d,
-    TEST_ENV,
-    isArray,
-    isObj,
-    isFunc,
-    isString,
-    addListener,
-    removeListener,
-    def,
-    extend,
-    test
 };

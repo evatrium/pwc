@@ -8,7 +8,7 @@ const todoStubs = [
 let count = 0;
 const defaultTodos = todoStubs.map((name) => ({id: count++, name, completed: false}));
 // [...Array(500)]
-export const todos = {
+export let todos = {
     list: defaultTodos,
     displayList: defaultTodos,
     todoName: '',
