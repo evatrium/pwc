@@ -46,7 +46,7 @@ export const CountComponent = pwc('count-component', class extends Component{
     
     static propTypes = {name: String};
     
-    state = {count}
+    state = {count:0}
     
     inc = () => this.setState(state => ({count: state.count + 1}));
     
