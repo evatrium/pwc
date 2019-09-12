@@ -3,9 +3,6 @@
 	"version": "0.0.8",
 	"description": "build web components using preact",
 	"main": "lib/index.js",
-	"module": "lib/index.esm.js",
-	"module.min": "lib/index.esm.min.js",
-	"browser": "lib/index.bundle.js",
 	"publishConfig": {
 		"access": "public"
 	},

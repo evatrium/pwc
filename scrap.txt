@@ -1,4 +1,6 @@
-
+	"module": "lib/index.esm.js",
+	"module.min": "lib/index.esm.min.js",
+	"browser": "lib/index.bundle.js",
 
 https://www.codementor.io/bennyp/lets-build-web-components-part-2-the-polyfills-nzy0icg0c
 

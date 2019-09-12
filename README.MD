@@ -1,5 +1,5 @@
 # @iosio/pwc
-
+<img src="https://img.shields.io/circleci/project/github/iosio/pwc.svg?style=flat-square" /><img src="https://img.shields.io/npm/v/@iosio/pwc.svg?style=flat-square" /><img src="https://img.shields.io/bundlephobia/minzip/@iosio/pwc.svg?style=flat-square" />
 > create web components using preact
 
 ## Installation 
