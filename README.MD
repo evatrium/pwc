@@ -83,4 +83,6 @@ export const CountComponent = pwc('count-component', class extends Component{
 ```
 ### License
 
+[MIT]
+
 [MIT]: https://choosealicense.com/licenses/mit/
