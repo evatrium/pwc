@@ -1,6 +1,6 @@
 {
 	"name": "@iosio/pwc",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "build web components using preact",
 	"main": "lib/index.js",
 	"module": "lib/index.esm.js",
