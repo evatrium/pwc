@@ -14,17 +14,16 @@ import {h, render} from "preact";
 let PROPS = Symbol(),
     IGNORE_ATTR = Symbol(),
     context = {},
-    pwc = (tag, PreactComponent, propTypes) => {
+    pwc = (tag, component, propTypes) => {
         webComponentVisibility(tag);
         customElements.define(tag, class extends PWC {
-                static propTypes = PreactComponent.propTypes || propTypes;
-                render = props => h(PreactComponent, props);
+                static propTypes = component.propTypes || propTypes;
+                render = props => h(component, props);
             }
         );
         return (props) => h(tag, props, props.children);
     },
     x = (t, c, p) => pwc('x-' + t, c, p);
-
 
 
 class PWC extends HTMLElement {
@@ -33,8 +32,7 @@ class PWC extends HTMLElement {
 
     constructor() {
         super();
-        this.attachShadow({mode: 'open'});
-        this._root = (this.shadowRoot || this);//in case i decide to later include the option to not use shadowDom
+        this._root = this.attachShadow({mode: 'open'});//  (this.shadowRoot || this) maybe eventually include the option to not use shadowDom
         this[PROPS] = {};
         this._mounted = new Promise(mount => (this._mount = mount));
         this.update();
@@ -42,6 +40,7 @@ class PWC extends HTMLElement {
         let length = _initAttrs.length;
         while (length--) _initAttrs[length](this);
     }
+
     /*
      adding visibility inherit on next tick after (inspired by stencil.js)
      will prevent flash of un-styled content (common complaint with web components).
@@ -73,7 +72,11 @@ class PWC extends HTMLElement {
         this[attrToProp(attr)] = newValue;
     }
 
-    /* inspired by atomico  */
+    /*
+        inspired by atomico
+        converts attributes to props as defined in the static propTypes.
+        defers the upgrading of the attributes till mounted, ignoring them to avoid re-rendering
+    */
     static get observedAttributes() {
         let {propTypes, prototype} = this;
         this._initAttrs = [];

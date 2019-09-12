@@ -10,24 +10,30 @@
 		"access": "public"
 	},
 	"license": "MIT",
-	"files": [],
-	"keywords": [],
+	"files": [
+		"lib/"
+	],
+	"keywords": [
+		"preact",
+		"web component",
+		"web",
+		"component",
+		"custom element",
+		"custom",
+		"element"
+	],
 	"scripts": {
 		"start": "NODE_ENV=development es-dev-server",
 		"test": "NODE_ENV=test karma start --single-run --browsers ChromeHeadless karma.conf.js",
 		"build": "NODE_ENV=production rimraf lib && rollup -c rollup.config.js"
 	},
 	"peerDependencies": {
-		"@iosio/obi": "0.0.6"
-	},
-	"peerDependenciesMeta": {
-		"@iosio/obi": {
-			"optional": true
-		}
+		"@iosio/util": "0.0.4",
+		"preact": "^10.0.0-rc.3"
 	},
 	"dependencies": {
-		"@iosio/obi": "0.0.8",
-		"@iosio/util": "0.0.4"
+		"@iosio/util": "0.0.4",
+		"preact": "^10.0.0-rc.3"
 	},
 	"devDependencies": {
 		"@atomico/rollup-plugin-sizes": "^1.0.3",
@@ -39,6 +45,7 @@
 		"@babel/plugin-transform-react-jsx": "^7.3.0",
 		"@babel/plugin-transform-template-literals": "^7.4.4",
 		"@iosio/babel-plugin-jcss": "0.0.4",
+		"@iosio/obi": "0.0.13",
 		"@open-wc/building-utils": "^2.7.0",
 		"babel-plugin-bundled-import-meta": "^0.3.1",
 		"babel-plugin-transform-inline-environment-variables": "^0.4.3",
@@ -49,7 +56,6 @@
 		"karma-jasmine": "^2.0.1",
 		"karma-rollup-preprocessor": "^7.0.2",
 		"karma-spec-reporter": "0.0.32",
-		"preact": "^10.0.0-rc.3",
 		"rimraf": "^2.6.3",
 		"rollup": "^1.15.4",
 		"rollup-plugin-babel": "^4.3.3",

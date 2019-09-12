@@ -6,7 +6,7 @@ import {h, render, Fragment, Component} from "preact";
 import {todos as to} from "../demo/todos";
 import {extend} from "@iosio/util";
 
-import {obi, connectObi} from "../src/obi";
+import {obi, connectObi} from "@iosio/obi";
 
 // import {obi} from "@iosio/obi/preact/index.esm";
 
@@ -94,39 +94,24 @@ const counter = {
 
 const $counter = obi(counter);
 
-const Counter = x('counter', class extends Component {
-    static propTypes = {color: String};
+const Counter = x('counter', ({color}, {mounted}) => {
+    test.$use();
 
-    constructor() {
-        super();
-        // console.log('counter constructed')
-    }
-
-    observe = test;
-
-    state = {mounted: false};
-
-    componentDidMount() {
-        this.setState({mounted: true})
-    }
-
-    render({color}, {mounted}) {
-        return (
-            <div style={{border: '2px solid purple', width: '100%'}}>
-                <style>{`
+    return (
+        <div style={{border: '2px solid purple', width: '100%'}}>
+            <style>{`
                      *, *::before,
                         *::after {
                             box-sizing: border-box;
                         }
                 `}</style>
-                <span style={{color: 'blue', background: mounted ? 'white' : 'red'}}>{test.count}</span>
-                <div style={{height: 20, width: 20, background: color || 'blue'}}>
-                    <slot/>
-                </div>
+            <span style={{color: 'blue', background: mounted ? 'white' : 'aliceblue'}}>{test.count}</span>
+            <div style={{height: 20, width: 20, background: color || 'blue'}}>
+                <slot/>
             </div>
-        )
-    }
-});
+        </div>
+    )
+}, {color: String});
 
 
 const Lister = x('lister', todos.$connect()(() => (
@@ -150,13 +135,9 @@ class AppComponent extends Component {
 
     state = {bool: true, text: '', asdf: 0};
 
-    componentDidUpdate(){
-        console.log('did update')
-    }
-
     toggle = () => {
         this.setState(state => ({bool: !state.bool}))
-    }
+    };
 
     render(props, state) {
 
@@ -238,10 +219,7 @@ class AppComponent extends Component {
                 <br/>
                 <br/>
 
-                <input placeholder="add todo" value={(function () {
-                    console.log(todos.todoName)
-                    return todos.todoName
-                })()}
+                <input placeholder="add todo" value={todos.todoName}
                        onInput={(e) => todos.todoName = e.target.value}/>
 
                 <button onClick={todos.addTodo} style="color:blue">

@@ -36,16 +36,20 @@ function outputLib({file, format, min}) {
         UMD = format === 'umd',
         CJS = format === 'cjs';
 
-    let umdName = format === 'umd' ? {name: 'iosiox'} : {};
+    let umdName = format === 'umd' ? {name: 'pwc'} : {};
 
     return {
         input: "src/index.js",
         treeshake: true,
-        // external,
+        external,
         output: {
             file,
             format,
             sourcemap: true,
+            globals: {
+                'preact': 'preact',
+                "@iosio/util": "iosioUtil"
+            },
             // dynamicImportFunction: !oldSchoolShit && 'importShim', //--- i think this is for bundling apps not so much for libs
             ...umdName,
         },
