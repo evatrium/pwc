@@ -1,47 +1,26 @@
-import {PWC, pwc, x, h, Fragment, Host} from "../src";
+import {pwc} from "../src";
+import {h, Component} from 'preact';
 import {randomName, mount, till} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
 
 
-var lifeCycles, tests, shouldReRender, tag, node, observable;
+var lifeCycles, tests, tag, node, shouldUpdate, observable;
 
-const createXelement = () => {
+const createPwc = () => {
 
     let tag = randomName();
 
-    observable = obi({observableValue: 'hello'});
-
-    pwc(tag, class extends PWC {
+    pwc(tag, class extends Component {
 
         static propTypes = {
             testText: {type: String, reflect: true, value: ''}
         };
 
-        observe = observable;
-
         state = {test: 'abc'};
 
-        willRender() {
-            // console.log('************ will render');
-            lifeCycles.willRender();
-            // return 'some truthy value to indicate that a re-render should NOT take place'
-            return shouldReRender;
-        }
-
-        didRender() {
-            // console.log('************ did render');
-            lifeCycles.didRender();
-        }
-
-        lifeCycle() {
-
-            lifeCycles.lifeCycle();
-            this._unsubs.push(lifeCycles.unsubscribe) // adds 1 call to lifeCycle.unsubscribe
-            return () => { // adds 1 call to lifeCycle.unsubscribe
-                // console.log('******** will unmount');
-                lifeCycles.willUnmount();
-            }
+        shouldComponentUpdate(nextProps, nextState, nextContext) {
+            return shouldUpdate;
         }
 
         render({testText}) {
@@ -50,35 +29,46 @@ const createXelement = () => {
 
             return (<h1>{testText}</h1>)
         }
+
+        componentDidMount() {
+            lifeCycles.didMount();
+        }
+
+
+        componentDidUpdate() {
+            lifeCycles.didUpdate();
+        }
+
+        componentWillUnmount() {
+            lifeCycles.willUnmount();
+        }
+
     });
 
     return tag;
 };
 
 
-describe('PWC lifeCycles', () => {
+describe('preact Component lifeCycles behave as expected', () => {
 
 
     beforeEach(function () {
 
-        shouldReRender = undefined;
+        shouldUpdate = undefined;
 
 
-        tag = createXelement();
+        tag = createPwc();
 
 
         lifeCycles = jasmine.createSpyObj('lifeCycles',
-            ['willRender', 'render', 'didRender', 'lifeCycle', 'willUnmount', 'unsubscribe']
+            ['render', 'didMount', 'didUpdate', 'willUnmount']
         );
 
-
-        tests = ({willRender, render, didRender, lifeCycle, willUnmount, unsubscribe}) => {
-            (willRender || willRender === 0) && expect(lifeCycles.willRender.calls.count()).toEqual(willRender);
+        tests = ({render, didMount, didUpdate, willUnmount}) => {
             (render || render === 0) && expect(lifeCycles.render.calls.count()).toEqual(render);
-            (didRender || didRender === 0) && expect(lifeCycles.didRender.calls.count()).toEqual(didRender);
-            (lifeCycle || lifeCycle === 0) && expect(lifeCycles.lifeCycle.calls.count()).toEqual(lifeCycle);
+            (didMount || didMount === 0) && expect(lifeCycles.didMount.calls.count()).toEqual(didMount);
+            (didUpdate || didUpdate === 0) && expect(lifeCycles.didUpdate.calls.count()).toEqual(didUpdate);
             (willUnmount || willUnmount === 0) && expect(lifeCycles.willUnmount.calls.count()).toEqual(willUnmount);
-            (unsubscribe || unsubscribe === 0) && expect(lifeCycles.unsubscribe.calls.count()).toEqual(unsubscribe);
         };
 
     });
@@ -86,16 +76,13 @@ describe('PWC lifeCycles', () => {
 
     it('the initial render should call the correct lifecycle methods', async (done) => {
 
-
         let {node} = await mount({tag});
 
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         node.remove();
@@ -115,14 +102,11 @@ describe('PWC lifeCycles', () => {
 
         await node._process;
 
-
         tests({
-            willRender: 2,
             render: 2,
-            didRender: 2,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 1,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         node.remove();
@@ -132,7 +116,7 @@ describe('PWC lifeCycles', () => {
     });
 
 
-    it('setting an attribute again with the same value should only trigger the willRender method ', async (done) => {
+    it('setting an attribute again with the same value should not trigger a re-render ', async (done) => {
 
         let {node} = await mount({tag}); //1
 
@@ -145,12 +129,10 @@ describe('PWC lifeCycles', () => {
         await node._process;
 
         tests({
-            willRender: 2,
             render: 2,
-            didRender: 2,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 1,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         node.remove();
@@ -164,19 +146,15 @@ describe('PWC lifeCycles', () => {
 
         let {node} = await mount({tag});
 
-        /*
-           setting an attribute with the same value should NOT trigger a rerender
-        */
         node.setAttribute('test-text', 'test1');
+
         await node._process;
 
         tests({
-            willRender: 2,
             render: 2,
-            didRender: 2,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 1,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         /*
@@ -188,20 +166,15 @@ describe('PWC lifeCycles', () => {
         await node._process;
 
         tests({
-            willRender: 3,
             render: 3,
-            didRender: 3,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 2,
             willUnmount: 0,
-            unsubscribe: 0
         });
-
 
         node.remove();
 
-
         done();
-
     });
 
 
@@ -214,21 +187,18 @@ describe('PWC lifeCycles', () => {
              (hence - willRender will be called in order to return the value)
         */
 
-        shouldReRender = false;
+        shouldUpdate = false;
 
         node.setAttribute('test-text', 'test1');
 
         await node._process;
 
         tests({
-            willRender: 2,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
-
 
         node.remove();
 
@@ -238,94 +208,28 @@ describe('PWC lifeCycles', () => {
     });
 
 
-    it('calling setState should trigger the correct lifecycle methods ', async (done) => {
+    it('removing the custom element from the dom should call componentWillUnmount ', async (done) => {
 
         let {node} = await mount({tag});
 
 
-        node.setState({test: 123});
-
-
-        await node._process;
-
         tests({
-            willRender: 2,
-            render: 2,
-            didRender: 2,
-            lifeCycle: 1,
-            willUnmount: 0,
-            unsubscribe: 0
-        });
-
-        expect(node.state.test).toBe(123);
-
-        node.remove();
-
-
-        done();
-
-    });
-
-
-
-    it('updating an observed value should trigger a rerender', async (done) => {
-
-        let {node} = await mount({tag});
-
-
-        observable.observableValue = 'updated';
-
-
-        await node._process;
-
-        tests({
-            willRender: 2,
-            render: 2,
-            didRender: 2,
-            lifeCycle: 1,
-            willUnmount: 0,
-            unsubscribe: 0
-        });
-
-        expect(node.observe.observableValue).toBe('updated');
-
-        node.remove();
-
-
-        done();
-
-    });
-
-
-
-
-
-
-
-    it('removing the pwc should call willUnmount and unsubscribe the subscriptions ', async (done) => {
-
-        let {node} = await mount({tag});
-
-        tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
 
         node.remove();
 
 
+
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 1,
-            unsubscribe: 1
         });
 
         done();

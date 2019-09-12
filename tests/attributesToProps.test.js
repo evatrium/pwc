@@ -1,70 +1,70 @@
-import {PWC, pwc, x, h, Fragment} from "../src";
+import {pwc} from "../src";
+import {h, Component, Fragment} from 'preact';
 import {randomName, mount, till} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
 
 
-var expectedCalls, tests, shouldReRender, tag, node, observable;
+var expectedCalls, tests, shouldUpdate;
 
-const createXelement = ({propTypes = {}, renderFunc}) => {
+const createPwc = ({propTypes = {}, renderFunc}) => {
 
     let tag = randomName();
 
-    pwc(tag, class extends PWC {
+    pwc(tag, class extends Component {
 
         static propTypes = propTypes;
 
-        willRender() {
-            expectedCalls.willRender();
-            // return 'some truthy value to indicate that a re-render should NOT take place'
-            return shouldReRender;
-        }
+        state = {test: 'abc'};
 
-        didRender() {
-            expectedCalls.didRender();
-        }
-
-        lifeCycle() {
-            expectedCalls.lifeCycle();
-            this._unsubs.push(expectedCalls.unsubscribe) // adds 1 call to lifeCycle.unsubscribe
-            return () => { // adds 1 call to lifeCycle.unsubscribe
-                expectedCalls.willUnmount();
-            }
+        shouldComponentUpdate(nextProps, nextState, nextContext) {
+            return shouldUpdate;
         }
 
         render(props) {
+
             expectedCalls.render();
+
             return renderFunc ? renderFunc(props) : null;
         }
+
+        componentDidMount() {
+            expectedCalls.didMount();
+        }
+
+
+        componentDidUpdate() {
+            expectedCalls.didUpdate();
+        }
+
+        componentWillUnmount() {
+            expectedCalls.willUnmount();
+        }
+
     });
 
     return tag;
 };
 
 
-
-describe('PWC props', () => {
+describe('attributes are properly converted from the web component and passed as props to the preact component', () => {
 
 
     beforeEach(function () {
 
-        shouldReRender = undefined;
+        shouldUpdate = undefined;
 
 
-        expectedCalls = jasmine.createSpyObj('lifeCycles',
-
-            ['renderedAttributesToProps','willRender', 'render', 'didRender', 'lifeCycle', 'willUnmount', 'unsubscribe']
+        expectedCalls = jasmine.createSpyObj('expectedCalls',
+            ['render', 'didMount', 'didUpdate', 'willUnmount', 'renderedAttributesToProps']
         );
 
-        tests = ({willRender, render, didRender, lifeCycle, willUnmount, unsubscribe}) => {
-            (willRender || willRender === 0) && expect(expectedCalls.willRender.calls.count()).toEqual(willRender);
+        tests = ({render, didMount, didUpdate, willUnmount}) => {
             (render || render === 0) && expect(expectedCalls.render.calls.count()).toEqual(render);
-            (didRender || didRender === 0) && expect(expectedCalls.didRender.calls.count()).toEqual(didRender);
-            (lifeCycle || lifeCycle === 0) && expect(expectedCalls.lifeCycle.calls.count()).toEqual(lifeCycle);
+            (didMount || didMount === 0) && expect(expectedCalls.didMount.calls.count()).toEqual(didMount);
+            (didUpdate || didUpdate === 0) && expect(expectedCalls.didUpdate.calls.count()).toEqual(didUpdate);
             (willUnmount || willUnmount === 0) && expect(expectedCalls.willUnmount.calls.count()).toEqual(willUnmount);
-            (unsubscribe || unsubscribe === 0) && expect(expectedCalls.unsubscribe.calls.count()).toEqual(unsubscribe);
         };
-
 
     });
 
@@ -77,7 +77,8 @@ describe('PWC props', () => {
             number: Number,
             boolean: Boolean,
             object: Object,
-            array: Array
+            array: Array,
+            date: Date
         };
 
         const attributes = {
@@ -96,11 +97,11 @@ describe('PWC props', () => {
 
             attributes,
 
-            tag: createXelement({
+            tag: createPwc({
                 propTypes,
-                renderFunc:({Host, ...props})=>{
+                renderFunc:({host, ...props})=>{
                     expectedCalls.renderedAttributesToProps(props);
-                    return <Host>{JSON.stringify(props)}</Host>
+                    return <Fragment>{JSON.stringify(props)}</Fragment>
                 }
             })
         });
@@ -108,26 +109,21 @@ describe('PWC props', () => {
 
         let {node, tag, lightDomSnapshot, shadowSnapshot} = results;
 
-
         let expectedTestAttrs = 'string="hello" number="123" boolean="true" object="{&quot;heyo&quot;:&quot;sup sup&quot;}" array="[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]"';
 
-        expect(lightDomSnapshot())
-            .toBe(`<${tag} ${expectedTestAttrs}></${tag}>`);
 
+        expect(lightDomSnapshot()).toBe(`<${tag} ${expectedTestAttrs}></${tag}>`);
 
         expect(expectedCalls.renderedAttributesToProps).toHaveBeenCalledWith(attributes);
-
 
         expect(shadowSnapshot()).toBe(expectedShadowDom);
 
 
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         done();
@@ -153,11 +149,11 @@ describe('PWC props', () => {
 
             attributes,
 
-            tag: createXelement({
+            tag: createPwc({
                 propTypes,
-                renderFunc:({Host, ...props})=>{
+                renderFunc:({host, ...props})=>{
                     expectedCalls.renderedAttributesToProps(props);
-                    return <Host></Host>
+                    return <Fragment></Fragment>
                 }
             })
         });
@@ -173,12 +169,10 @@ describe('PWC props', () => {
 
 
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
 
@@ -188,12 +182,10 @@ describe('PWC props', () => {
 
 
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
 
@@ -207,7 +199,7 @@ describe('PWC props', () => {
 
 
 
-    it('passes an attribute to props and re-renders when the value changes', async (done) => {
+    it('passes attributes to props and re-renders when the value changes', async (done) => {
 
 
         const propTypes = {
@@ -223,11 +215,11 @@ describe('PWC props', () => {
 
             attributes,
 
-            tag: createXelement({
+            tag: createPwc({
                 propTypes,
-                renderFunc:({Host, ...props})=>{
+                renderFunc:({host, ...props})=>{
                     expectedCalls.renderedAttributesToProps(props);
-                    return <Host>{JSON.stringify(props)}</Host>
+                    return <Fragment>{JSON.stringify(props)}</Fragment>
                 }
             })
         });
@@ -247,12 +239,10 @@ describe('PWC props', () => {
 
 
         tests({
-            willRender: 1,
             render: 1,
-            didRender: 1,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 0,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
         node.setAttribute('string', 'hello again');
@@ -260,19 +250,14 @@ describe('PWC props', () => {
         await node._process;
 
         tests({
-            willRender: 2,
             render: 2,
-            didRender: 2,
-            lifeCycle: 1,
+            didMount: 1,
+            didUpdate: 1,
             willUnmount: 0,
-            unsubscribe: 0
         });
 
-
-
         expect(lightDomSnapshot())
-            .toBe(`<${tag} string="hello again"></${tag}>`);
-
+            .toBe(`<${tag} string="hello again"></${tag}>`)
 
         expect(shadowSnapshot()).toBe(JSON.stringify({string: 'hello again'}));
 

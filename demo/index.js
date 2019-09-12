@@ -144,12 +144,15 @@ const Lister = x('lister', todos.$connect()(() => (
 )));
 
 
-const AppComponent = class extends Component {
+class AppComponent extends Component {
 
     static propTypes = {some: String, cool: Boolean, prop: Number, types: Object, yo: Array};
 
     state = {bool: true, text: '', asdf: 0};
 
+    componentDidUpdate(){
+        console.log('did update')
+    }
 
     toggle = () => {
         this.setState(state => ({bool: !state.bool}))

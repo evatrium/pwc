@@ -1,15 +1,16 @@
-import {PWC, pwc, x, h, Fragment} from "../src";
+import {pwc} from "../src";
+import {h, Component} from 'preact';
 import {randomName, mount} from "./_testUtils";
 
 import {obi} from "@iosio/obi";
 
-describe('PWC', () => {
+describe('class and functional components render the correct nodes', () => {
 
-    it('creates a custom pwc that extends PWC', async (done) => {
+    it('creates a custom element from a preact class component', async (done) => {
 
         let tag = randomName();
 
-        pwc(tag, class extends PWC {
+        pwc(tag, class extends Component {
             render() {
                 return (<div>hello</div>)
             }
@@ -27,7 +28,7 @@ describe('PWC', () => {
 
     });
 
-    it('creates a custom pwc using a functional component', async (done) => {
+    it('creates a custom element using a preact functional component', async (done) => {
 
         let tag = randomName();
 
@@ -45,7 +46,7 @@ describe('PWC', () => {
 
     });
 
-    it('creates a custom pwc using a functional component and with propTypes passed as a third parameter', async (done) => {
+    it('creates a custom pwc using a functional component and with propTypes passed to the third parameter', async (done) => {
 
         let tag = randomName();
 
@@ -62,11 +63,11 @@ describe('PWC', () => {
         done();
     });
 
-    it('PWC re-renders correct content when state is updated', async (done) => {
+    it('re-renders correct content when state is updated', async (done) => {
 
         let tag = randomName();
 
-        pwc(tag, class extends PWC {
+        pwc(tag, class extends Component {
 
             state = {count: 0};
 
@@ -108,97 +109,5 @@ describe('PWC', () => {
         done();
 
     });
-
-
-    it('Host pwc behaves as expected, and does not interfere with user assigned classNames and style properties', async (done) => {
-
-        let tag = randomName();
-
-        let USER_ASSIGNED_CLASS = 'userAssignedClass';
-        let USER_ASSIGNED_STYLE = 'border: 1px solid red;';
-
-
-        pwc(tag, class extends PWC {
-
-            state = {applyClass: true, applyStyles: true, count: 0};
-
-            inc = () => this.setState(state => ({count: state.count + 1}));
-
-            toggleTestClass = () => this.setState(state => ({applyClass: !state.applyClass}));
-
-            toggleTestStyles = () => this.setState(state => ({applyStyles: !state.applyStyles}));
-
-            render({Host}, {applyClass, applyStyles, count}) {
-
-                return (
-                    <Host className={applyClass ? 'testClass' : null} style={applyStyles ? {color: 'red'} : null}>
-                        <span id="count">{count}</span>
-                        <button id="testClass" onClick={this.toggleTestClass}>testStyles</button>
-                        <button id="testStyles" onClick={this.toggleTestStyles}>testClass</button>
-                        <button id="inc" onClick={this.inc}>inc</button>
-                    </Host>
-                )
-            }
-        });
-
-        let results = await mount({tag, attributes: {'class': USER_ASSIGNED_CLASS, style: USER_ASSIGNED_STYLE}});
-
-        let {node, lightDomSnapshot, shadowSnapshot, select, click} = results;
-
-        expect(shadowSnapshot()).toBe('<span id="count">0</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS} testClass" style="${USER_ASSIGNED_STYLE} color: red;"></${tag}>`);
-
-        click('#inc');
-
-        await node._process;
-
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS} testClass" style="${USER_ASSIGNED_STYLE} color: red;"></${tag}>`);
-
-        click('#testClass');
-
-        await node._process;
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS}" style="${USER_ASSIGNED_STYLE} color: red;"></${tag}>`);
-
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        click('#testClass');
-
-        await node._process;
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS} testClass" style="${USER_ASSIGNED_STYLE} color: red;"></${tag}>`);
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        click('#testStyles');
-
-        await node._process;
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS} testClass" style="${USER_ASSIGNED_STYLE}"></${tag}>`);
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        click('#testStyles');
-
-        await node._process;
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS} testClass" style="${USER_ASSIGNED_STYLE} color: red;"></${tag}>`);
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        click('#testStyles');
-
-        click('#testClass');
-
-        await node._process;
-
-        expect(lightDomSnapshot()).toBe(`<${tag} class="${USER_ASSIGNED_CLASS}" style="${USER_ASSIGNED_STYLE}"></${tag}>`);
-        expect(shadowSnapshot()).toBe('<span id="count">1</span><button id="testClass">testStyles</button><button id="testStyles">testClass</button><button id="inc">inc</button>')
-
-        done();
-
-    });
-
 
 });
