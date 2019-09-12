@@ -7,7 +7,7 @@
 npm install @iosio/pwc --save
 ```
 ### Coming soon*
-**@iosio/pwc-boilerplate** - starter that will include all build tools and dependencies for creating apps and libs with pwc
+**@iosio/pwc-boilerplate** - starter that will include modern build tools and dependencies for creating apps and libs with pwc
 
 then eventually
 
